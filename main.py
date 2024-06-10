@@ -1,10 +1,11 @@
 import streamlit as st
 import re
-from nba.constants import COMPARE_METRICS, CSV_INPUT_PATH, GAME_NUMBER, PID, PLAYER_NAME, GAME_DATE
-from nba.analyzer import DataAnalyzer
+from constants import COMPARE_METRICS, CSV_INPUT_PATH, GAME_NUMBER, PID, PLAYER_NAME, GAME_DATE
+from analyzer import DataAnalyzer
 from models import PlayerComp, PlayerFilter, PercentileFilter
-from nba.vizualization.timeseries import get_timeseries_chart
-from nba.vizualization.utils import get_colored_stats
+from vizualization.timeseries import get_timeseries_chart
+from vizualization.utils import get_colored_stats
+
 
 def main():
     # MELT DF

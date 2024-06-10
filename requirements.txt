@@ -2,10 +2,8 @@ pandas
 numpy
 requests
 nba_api
-logging
 psycopg2
 duckdb
 pydantic
 streamlit
 altair
-streamlit-pydantic

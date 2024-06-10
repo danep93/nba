@@ -1,7 +1,7 @@
 from typing import Union, List, Optional
 from pydantic import BaseModel, field_validator, Field
 
-from nba.constants import COMPARE_METRICS
+from constants import COMPARE_METRICS
 
 
 class PlayerGameOBT(BaseModel):

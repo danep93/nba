@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from nba.constants import PID
-from nba.models import PlayerComp
+from constants import PID
+from models import PlayerComp
 
 
 def get_colored_stats(p: PlayerComp, compare_stat_name: str, df: pd.DataFrame) -> str:
