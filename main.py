@@ -6,6 +6,7 @@ from models import PlayerComp, PlayerFilter, PercentileFilter
 from vizualization.timeseries import get_timeseries_chart
 from vizualization.utils import get_colored_stats
 
+
 def main():
     # MELT DF
     # VIZ
