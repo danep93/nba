@@ -2,7 +2,6 @@ pandas
 numpy
 requests
 nba_api
-psycopg2
 duckdb
 pydantic
 streamlit
