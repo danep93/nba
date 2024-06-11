@@ -6,10 +6,14 @@ import duckdb
 import os
 from errors import CSVDataLoadError
 import numpy as np
-from constants import PID, PLAYER_NAME, GAME_DATE, GID, GAME_NUMBER, SEASON_YEAR, PLAYER_COLS, GAME_COLS
+from constants import PID, PLAYER_NAME, GAME_DATE, GID, GAME_NUMBER, SEASON_YEAR, PLAYER_COLS, GAME_COLS, HOLISTIC_STATS
 import streamlit as st
 from functools import reduce
 import os
+
+from vizualization.utils import highlight_max
+
+
 # DONE todo: use pydantic validator, don't load df if validator fails
 # DONE todo: add linear backoff retry to API call and put in util function
 # todo: use PANdantic validator when ingesting, not constants file. SEPARATE INGESTINO FOLDER
@@ -44,11 +48,21 @@ class DataAnalyzer:
             con.execute(sql)
             return con.execute(f"select * from {_self.table_name}").fetchdf().sort_values(by=PLAYER_NAME)
 
-    def get_player_comp_df(self, compare_stat, player_comps: List[PlayerComp]):
+    def get_display_name(self, player_id, full=False):
+        name = self.df.loc[self.df[PID] == np.int64(player_id), PLAYER_NAME][0]
+        if not full:
+            name = name.split(' ')[0]
+        return name
+
+
+    def get_timeseries_comp_df(self, compare_stat, player_comps: List[PlayerComp]):
         player_dfs = []
         # date_col = GAME_DATE
+        df = self.df.copy()
+        df[compare_stat] = pd.to_numeric(df[compare_stat], errors='coerce')
+        # df = df.dropna(subset=[compare_stat])
         for p in player_comps:
-            player_df = self.df.loc[self.df[PID] == np.int64(p.player_id)].sort_values(by=GAME_DATE, ascending=True)
+            player_df = df.loc[df[PID] == np.int64(p.player_id)].sort_values(by=GAME_DATE, ascending=True)
             if p.filters:
                 filters = " AND ".join([f"{x.field} {x.operator} {x.value}" for x in p.filters])
                 player_df = player_df.query(filters)
@@ -58,11 +72,30 @@ class DataAnalyzer:
             if p.group_by_season:
                 # date_col = SEASON_YEAR
                 player_df[GAME_DATE] = player_df[SEASON_YEAR].astype(str) + ' SEASON'
-                player_df = player_df.groupby([PID, PLAYER_NAME, GAME_DATE]).agg({compare_stat: 'mean'}).reset_index()
+                player_df = player_df.groupby([PID, PLAYER_NAME, GAME_DATE])[compare_stat].mean(numeric_only=True).reset_index()
 
             player_df = player_df[[PID, PLAYER_NAME, GAME_DATE, compare_stat]].sort_values(by=GAME_DATE, ascending=True).reset_index(drop=True)
             player_dfs.append(player_df)
         return pd.concat(player_dfs).reset_index(names=GAME_NUMBER)
+
+    def get_holistic_comp_df(self, player_comps: List[PlayerComp]):
+        player_dfs = []
+        cols = HOLISTIC_STATS + [PID, PLAYER_NAME]
+        # returns player_name, season, Pts, Ast, Reb, Overall Rating
+        df = self.df.copy()
+        for p in player_comps:
+            player_df = df.loc[df[PID] == np.int64(p.player_id)].sort_values(by=GAME_DATE, ascending=True)
+            if p.group_by_season:
+                player_df[PLAYER_NAME] = player_df[PLAYER_NAME] + "_" + player_df[SEASON_YEAR]
+            player_df = player_df[cols].groupby([PID, PLAYER_NAME]).mean().apply(lambda x: round(x,2)).astype(str).reset_index()
+
+            player_df = player_df.sort_values(by=PLAYER_NAME, ascending=True).reset_index(drop=True)
+            player_dfs.append(player_df)
+        merged = pd.concat(player_dfs).drop(columns=[PID]).reset_index(drop=True)
+        merged = merged.style.apply(highlight_max, subset=pd.IndexSlice[:, HOLISTIC_STATS])
+        return merged
+        # grouped by career by default
+
 
     def get_percentile_players(self, pct_filters: List[PercentileFilter]):
         dfs = []

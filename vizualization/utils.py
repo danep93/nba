@@ -4,6 +4,11 @@ from constants import PID
 from models import PlayerComp
 
 
+def highlight_max(s):
+    is_max = s == s.max()
+    result = ['background-color: yellow' if v else '' for v in is_max]
+    return result
+
 def get_colored_stats(p: PlayerComp, compare_stat_name: str, df: pd.DataFrame) -> str:
     stats = calculate_stats(df.loc[df[PID] == p.player_id, [compare_stat_name]])
     colored_stats = (

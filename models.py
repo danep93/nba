@@ -83,6 +83,9 @@ class PlayerFilter(BaseModel):
             raise ValueError(f"'{operator_value}' is not a valid operator")
         return operator_value
 
+    def pretty_print(self) -> str:
+        return f"{self.field} {self.operator} {self.value}"
+
 
 class PlayerComp(BaseModel):
     player_id: int = Field(strict=False)
@@ -91,4 +94,3 @@ class PlayerComp(BaseModel):
     playoffs_only: bool = False
     group_by_season: bool = False
     # group_by: Optional[str] = ""  # Validate this is by game, season, career
-
