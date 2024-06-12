@@ -1,4 +1,3 @@
-# CSV_INPUT_PATH = "/Users/daniel/Desktop/all_nba_games.csv"
 CSV_INPUT_PATH = "all_nba_games.csv"
 CSV_OUTPUT_PATH = "/nba/resources/player_games/{}_players.csv"
 NUM_PLAYER_RETRIES = 5
@@ -80,7 +79,6 @@ PLAYER_COLS = {
         'PTS': 'Int64',
         'PLUS_MINUS': 'Int64',
 }
-# GAME_COLS = ['SEASON_ID', 'TEAM_ID', 'GAME_ID', 'GAME_DATE', 'MATCHUP', 'WL']
 GAME_COLS = {
        'SEASON_ID': str,
        'GAME_ID': str,

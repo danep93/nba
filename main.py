@@ -59,7 +59,7 @@ def main():
     selected_players = st.multiselect("Select players (maximum 10)",
                                       players, default=DEFAULT_MANY_PLAYERS_IDS, max_selections=10)
 
-    group_by_season = st.checkbox("Group by season")
+    group_by_season = st.checkbox("Group by season", value=True)
     playoffs_only = st.checkbox("Playoffs only")
     for f in st.session_state.player_filters:
         st.button(f'Filter: {f.pretty_print()}')
@@ -89,9 +89,13 @@ def main():
         value_name=compare_stat_name
     )
 
+    xaxis_name = GAME_NUMBER
+    if group_by_season:
+        xaxis_name = 'SEASON NUMBER'
+
     chart = get_timeseries_chart(
         df=melted_df,
-        x=GAME_NUMBER,
+        x=xaxis_name,
         y=compare_stat_name,
         color=PLAYER_NAME,
         tooltip=[compare_stat_name, PLAYER_NAME, GAME_DATE]
@@ -108,10 +112,6 @@ def main():
     st.title("Lookup based on percentile rankings")
     pct_filters = []
 
-    # pct_metric_names = st.multiselect("Select stats", COMPARE_METRICS.keys())
-    # percentile = st.number_input("Min Percentile", step=1, value=95)
-    # agg = st.selectbox("Aggregated by", ['mean','min','max','sum'])
-
     # Allow user to select stats in the first column
     pct_metric_names = st.multiselect("Select stats", list(COMPARE_METRICS.keys()), default=['POINTS','ASSISTS'])
     col1, col2 = st.columns([1, 1])
@@ -127,27 +127,6 @@ def main():
         pct_filters.append(PercentileFilter(field=COMPARE_METRICS[metric], value=percentile, agg=agg))
     results = da.get_percentile_players(pct_filters)
     st.dataframe(results)
-
-
-    # for metric in pct_metric_names:
-    #     with st.popover(metric):
-    #         value = st.number_input("Enter value", step=1, value=95, key=f"{metric}_value")
-    #         # value = st.slider('Select minimum percentile', 0, 100, 95, key=f'{metric}_value')
-    #         agg = st.selectbox("Aggregated by", ['mean','min','max','sum'], key=f'{metric}_agg')
-    #     pct_filters.append(PercentileFilter(field=COMPARE_METRICS[metric], value=value, agg=agg))
-
-    # search_pcts = st.button('Search')
-    # if search_pcts:
-
-
-
-# cols = st.columns(len(selected_players) + 1)
-# for i in range(0, len(selected_players)+1):
-#     with cols[i]:
-#         if i == 0:
-#             name = st.checkbox('All', value=True)
-#         else:
-#             name = st.checkbox(f'{selected_players[i-1].split(" ")[0]}')
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ import pandas as pd
 from models import PlayerComp, PercentileFilter
 from typing import List
 import duckdb
-import os
 from errors import CSVDataLoadError
 import numpy as np
 from constants import PID, PLAYER_NAME, GAME_DATE, GID, GAME_NUMBER, SEASON_YEAR, PLAYER_COLS, GAME_COLS, HOLISTIC_STATS
@@ -14,12 +13,6 @@ import os
 from vizualization.utils import highlight_max
 
 
-# DONE todo: use pydantic validator, don't load df if validator fails
-# DONE todo: add linear backoff retry to API call and put in util function
-# todo: use PANdantic validator when ingesting, not constants file. SEPARATE INGESTINO FOLDER
-# todo: add all type inference
-# todo: clean earlier files and store somewhere. Join later
-# todo: store sql template statements in a sql_constants file
 
 class DataAnalyzer:
     df: pd.DataFrame
